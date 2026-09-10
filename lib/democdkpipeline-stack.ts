@@ -1,6 +1,8 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Construct } from 'constructs';
 import * as pipelines from 'aws-cdk-lib/pipelines';
+import { PipelineAppStage } from './demoawspipeline-app-stack';
+
 
 export class DemocdkpipelineStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -15,6 +17,7 @@ pipelineName: 'CDKPipeline',
       synth: new pipelines.ShellStep('Synth', {
         // Pull code from GitHub whenever main branch updates
         input: pipelines.CodePipelineSource.gitHub('anakamura1/cdkpipelinedemo', 'main'),
+        
         // Execute these build commands in a temporary AWS container
         commands: [
           'npm ci',        // Install dependencies exactly as locked in package-lock.json
@@ -24,7 +27,15 @@ pipelineName: 'CDKPipeline',
       }),
     });
 
+    const testingStage = democdkpipeline.addStage(new PipelineAppStage(this, 'test', {
+      env: { account: '189722964218', region: 'us-east-1'}
+    }));
 
+    testingStage.addPost(new pipelines.ManualApprovalStep('approval'));
+
+    const prodStage = democdkpipeline.addStage(new PipelineAppStage(this, 'prod', {
+      env: { account: '189722964218', region: 'us-east-1'}
+    }));
 
     }
     // example resource
