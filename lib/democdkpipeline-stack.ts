@@ -32,4 +32,4 @@ pipelineName: 'CDKPipeline',
     //   visibilityTimeout: cdk.Duration.seconds(300)
     // });
   }
-}
+
